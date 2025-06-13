@@ -1,3 +1,2 @@
-# ENCODER_MAP_ENABLE = yes
 CONSOLE_ENABLE= yes
-VIA_ENABLE = yes
+# VIA_ENABLE = yes
