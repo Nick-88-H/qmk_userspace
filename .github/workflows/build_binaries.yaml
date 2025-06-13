@@ -15,8 +15,9 @@ jobs:
       - name: Checkout your keymap repo
         uses: actions/checkout@v3
 
-      - name: Clone Keychron QMK firmware (wls_2025q1)
-        run: git clone --depth=1 --branch wls_2025q1 https://github.com/keychron/qmk_firmware.git
+      - name: Clone Keychron QMK firmware with submodules
+        run: |
+          git clone --recurse-submodules --depth=1 --branch wls_2025q1 https://github.com/keychron/qmk_firmware.git
 
       - name: Inject your keymap into firmware tree
         run: |
