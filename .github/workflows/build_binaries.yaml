@@ -12,6 +12,7 @@ jobs:
     with:
       qmk_repo: keychron/qmk_firmware
       qmk_ref: wls_2025q1
+      keymap: Nick88H
 
   publish:
     name: 'QMK Userspace Publish'
