@@ -20,7 +20,7 @@ jobs:
 
       - name: Inject your keymap into firmware tree
         run: |
-          cp -r keyboards/qmk_firmware/keyboards/
+          cp -r keyboards qmk_firmware/
           if [ -d "users" ]; then cp -r users qmk_firmware/users; fi
 
       - name: Compile K17 Pro firmware
