@@ -1,1 +1,3 @@
-#define DYNAMIC_KEYMAP_COUNT 5
+#pragma once
+
+#define DYNAMIC_KEYMAP_LAYER_COUNT 5
