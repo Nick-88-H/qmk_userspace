@@ -1,4 +1,4 @@
-name: Build QMK firmware
+name: Build Keychron QMK Firmware
 
 on: [push, workflow_dispatch]
 
@@ -7,15 +7,29 @@ permissions:
 
 jobs:
   build:
-    name: 'QMK Userspace Build'
-    uses: qmk/.github/.github/workflows/qmk_userspace_build.yml@main
-    with:
-      qmk_repo: keychron/qmk_firmware
-      qmk_ref: wls_2025q1
-      keymap: Nick88H
+    name: Compile Keychron Keymaps
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli
 
-  publish:
-    name: 'QMK Userspace Publish'
-    uses: qmk/.github/.github/workflows/qmk_userspace_publish.yml@main
-    if: always() && !cancelled()
-    needs: build
+    steps:
+      - name: Checkout your keymap repo
+        uses: actions/checkout@v3
+
+      - name: Clone Keychron QMK firmware (wls_2025q1)
+        run: git clone --depth=1 --branch wls_2025q1 https://github.com/keychron/qmk_firmware.git
+
+      - name: Inject your keymap into firmware tree
+        run: |
+          cp -r keyboards/qmk_firmware/keyboards/
+          if [ -d "users" ]; then cp -r users qmk_firmware/users; fi
+
+      - name: Compile K17 Pro firmware
+        run: |
+          cd qmk_firmware
+          qmk compile -kb keychron/k17_pro/ansi_encoder/white -km Nick88H
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: keychron_firmware
+          path: qmk_firmware/.build/*.bin
