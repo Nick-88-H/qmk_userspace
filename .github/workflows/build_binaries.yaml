@@ -28,8 +28,15 @@ jobs:
         run: |
           qmk compile -kb keychron/k17_pro/ansi_encoder/white -km Nick88H
 
-      - name: Upload firmware artifact
-        uses: actions/upload-artifact@v4
+#      - name: Upload firmware artifact
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: keychron_firmware
+#          path: qmk_firmware/.build/keychron_k17_pro_ansi_encoder_white_Nick88H.bin
+
+      - name: Upload .bin to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          name: keychron_firmware
-          path: qmk_firmware/.build/keychron_k17_pro_ansi_encoder_white_Nick88H.bin
+          files: |
+            qmk_firmware/.build/keychron_k17_pro_ansi_encoder_white_Nick88H.bin
