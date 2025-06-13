@@ -119,7 +119,7 @@ static void clear_all_modifiers(void) {
     alt_waiting_for_release = false;
     shift_was_active = false;
     caps_was_active = false;
-    home_was_active = false;
+    insert_was_active = false;
 
     uprintf(">> TIMEOUT\n");
 }
@@ -138,7 +138,7 @@ void matrix_scan_user(void) {
         uprintf(">> Shift RELEASED\n");
     }
 
-    if ((sticky_ctrl_active || sticky_alt_active || shift_was_active || caps_was_active || home_was_active) &&
+    if ((sticky_ctrl_active || sticky_alt_active || shift_was_active || caps_was_active || insert_was_active) &&
         timer_elapsed(last_mod_activity) > MODIFIER_TIMEOUT) {
         clear_all_modifiers();
     }
