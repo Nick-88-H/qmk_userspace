@@ -1,1 +1,7 @@
-CONSOLE_ENABLE = yes
+VIA_ENABLE = no
+CONSOLE_ENABLE = yes     # Needed for uprint()
+NKRO_ENABLE = no
+MIDI_ENABLE = no
+STENO_ENABLE = no
+SERIAL_ENABLE = no
+MOUSEKEY_ENABLE = no
