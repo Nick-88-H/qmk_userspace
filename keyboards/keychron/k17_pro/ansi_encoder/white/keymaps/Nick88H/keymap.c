@@ -15,7 +15,7 @@
  */
 
 #include QMK_KEYBOARD_H
-#include "keychron_common.h"
+//#include "keychron_common.h"
 #include "print.h"
 #include "action_tapping.h"
 
@@ -147,9 +147,9 @@ void matrix_scan_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     uint16_t now = timer_read();
 
-    if (!process_record_keychron_common(keycode, record)) {
-        return false;
-    }
+//    if (!process_record_keychron_common(keycode, record)) {
+//        return false;
+//    }
 
     if (IS_REAL_MOD(keycode)) {
         last_mod_activity = now;
