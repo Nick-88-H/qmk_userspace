@@ -33,4 +33,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: keychron_firmware
-          path: qmk_firmware/.build/*.bin
+          path: .build/*.bin
