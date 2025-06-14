@@ -71,7 +71,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 // ─────────────── Sticky Modifier Handling ───────────────
 #define MODIFIER_TIMEOUT    5000
-#define IS_OSM_SHIFT(kc) ((kc) == OSM(MOD_RSFT))
+#define IS_OSM_SHIFT(kc) ((kc) == OSM(MOD_RSFT) || (kc) == OSM(MOD_LSFT))
 
 #define IS_REAL_MOD(kc) \
     ((kc) == KC_RCTL || (kc) == KC_LCTL || \
@@ -209,15 +209,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Track whether to release sticky mods after non-mod key
     if (record->event.pressed &&
         !IS_REAL_MOD(keycode) &&
-        keycode != OSM(MOD_RSFT)) {
+        keycode != OSM(MOD_RSFT) && keycode != OSM(MOD_LSFT)) {
         if (sticky_ctrl_active) ctrl_waiting_for_release = true;
         if (sticky_alt_active) alt_waiting_for_release = true;
     }
-
     // Release all sticky mods (incl. SHIFT, CTRL, ALT, CAPS and INSERT) on next key release
     if (!record->event.pressed &&
         !IS_REAL_MOD(keycode) &&
-        keycode != OSM(MOD_RSFT) &&
+        keycode != OSM(MOD_RSFT) && keycode != OSM(MOD_LSFT) &&
         !shift_was_active) {
 
         if (ctrl_waiting_for_release) {
