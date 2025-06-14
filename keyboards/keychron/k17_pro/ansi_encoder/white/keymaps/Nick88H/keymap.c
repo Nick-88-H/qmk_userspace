@@ -50,7 +50,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,    KC_EQL,   KC_BSPC,            KC_PGUP,  KC_NUM,   KC_PSLS,  KC_PAST,  KC_PMNS,
         KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,    KC_RBRC,  KC_BSLS,            KC_PGDN,  KC_P7,    KC_P8,    KC_P9,    KC_PPLS,
         KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,             KC_HOME,  KC_P4,    KC_P5,    KC_P6,
-        KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              OSM(MOD_RSFT),      KC_UP,    KC_P1,    KC_P2,    KC_P3,    KC_PENT,
+        OSM(MOD_LSFT),      KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              OSM(MOD_RSFT),      KC_UP,    KC_P1,    KC_P2,    KC_P3,    KC_PENT,
         KC_LCTL,  KC_LWIN,  KC_LALT,                                LT(WIN_HALF_QWERTY, KC_SPC),            KC_RALT,  MO(WIN_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT,  KC_P0,              KC_PDOT         ),
 
     [WIN_FN] = LAYOUT_104_ansi(
@@ -62,12 +62,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  _______,  _______,                                _______,                                _______,  _______,    _______,  _______,  _______,  _______,  _______,            _______         ),
 
     [WIN_HALF_QWERTY] = LAYOUT_104_ansi(
-        _______, LGUI(KC_H), _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    _______, _______, _______,          _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    _______, _______, _______,          _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______, _______, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,              _______,          _______, _______, _______, _______,
-        _______,          _______, _______, _______, _______, KC_Z,    KC_X,    KC_C,    KC_V,    _______, _______,          _______, _______,          _______, _______, _______, _______,
-        _______, _______, _______,                            _______,                            _______, _______, _______, _______, _______, _______, _______,          _______
+        _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,  _______,  _______,  _______,  _______,  _______, _______,
+        _______,  _______,  _______,  _______,  _______,  _______,  KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     _______,    _______,  _______,            _______,  _______,  _______,  _______, _______,
+        _______,  _______,  _______,  _______,  _______,  _______,  KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     _______,    _______,  _______,            _______,  _______,  _______,  _______, _______,
+        _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,                 _______,            _______,  _______,  _______,  _______,
+        _______,            _______,  _______,  _______,  _______,  _______,  _______,  KC_Z,     KC_X,     KC_C,     KC_V,                 _______,  _______,            _______,  _______,  _______, _______,
+        _______,  _______,  _______,                                _______,                                _______,  _______,    _______,  _______,  _______,  _______,  _______,            _______
     ),
 };
 
@@ -88,8 +88,10 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
 #define IS_OSM_SHIFT(kc) ((kc) == OSM(MOD_RSFT))
 
 #define IS_REAL_MOD(kc) \
-    ((kc) == KC_RCTL || (kc) == KC_RALT || \
-     (kc) == KC_RSFT || (kc) == KC_CAPS || (kc) == KC_INS || \
+    ((kc) == KC_RCTL || (kc) == KC_LCTL || \
+     (kc) == KC_RALT || (kc) == KC_LALT || \
+     (kc) == KC_RSFT || (kc) == KC_LSFT || \
+     (kc) == KC_CAPS || (kc) == KC_INS || \
      IS_OSM_SHIFT(kc))
 
 static uint16_t last_ctrl_tap = 0;
@@ -127,7 +129,7 @@ static void clear_all_modifiers(void) {
 void matrix_scan_user(void) {
     uint8_t osm_mods = get_oneshot_mods();
 
-    if (osm_mods & MOD_BIT(KC_RSFT)) {
+    if (osm_mods & (MOD_BIT(KC_RSFT) | MOD_BIT(KC_LSFT))) {
         if (!shift_was_active) {
             shift_was_active = true;
             last_mod_activity = timer_read();
@@ -178,32 +180,45 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     // Sticky Ctrl
-    if (keycode == KC_RCTL) {
+    if (keycode == KC_RCTL || keycode == KC_LCTL) {
         if (record->event.pressed) {
             if (timer_elapsed(last_ctrl_tap) < 500) {
-                register_mods(MOD_BIT(KC_RCTL));
+                // Double tap: sticky mode -> send a real down event
+                register_code(KC_RCTL);
                 sticky_ctrl_active = true;
                 uprintf(">> Ctrl ACTIVATED\n");
             } else {
                 last_ctrl_tap = now;
+                register_code(KC_RCTL);  // normal hold
+            }
+        } else {
+            // Only release if not sticky
+            if (!sticky_ctrl_active) {
+                unregister_code(KC_RCTL);
             }
         }
         return false;
     }
 
     // Sticky Alt
-    if (keycode == KC_RALT) {
+    if (keycode == KC_RALT || keycode == KC_LALT) {
         if (record->event.pressed) {
             if (timer_elapsed(last_alt_tap) < 500) {
-                register_mods(MOD_BIT(KC_RALT));
+                register_code(KC_RALT);
                 sticky_alt_active = true;
                 uprintf(">> Alt ACTIVATED\n");
             } else {
                 last_alt_tap = now;
+                register_code(KC_RALT);  // normal hold
+            }
+        } else {
+            if (!sticky_alt_active) {
+                unregister_code(KC_RALT);
             }
         }
         return false;
     }
+
 
     // Track whether to release sticky mods after non-mod key
     if (record->event.pressed &&
