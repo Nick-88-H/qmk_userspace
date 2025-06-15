@@ -29,7 +29,6 @@ jobs:
           qmk compile -kb keychron/k5_max/ansi/white -km Nick88H
           qmk compile -kb keychron/k17_pro/ansi_encoder/white -km Nick88H
 
-
       - name: Upload .bin to GitHub Release (force overwrite latest)
         uses: softprops/action-gh-release@v2
         with:
@@ -40,4 +39,4 @@ jobs:
           files: |
             qmk_firmware/.build/keychron_k5_max_ansi_white_Nick88H.bin
             qmk_firmware/.build/keychron_k17_pro_ansi_encoder_white_Nick88H.bin
-
+            hid_listen.py
