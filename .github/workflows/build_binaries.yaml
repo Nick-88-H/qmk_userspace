@@ -23,6 +23,11 @@ jobs:
           cp -r keyboards qmk_firmware/
           if [ -d users ]; then cp -r users qmk_firmware/; fi
 
+      - name: Show final rules.mk settings
+        working-directory: qmk_firmware
+        run: |
+          qmk info -kb keychron/k5_max/ansi/white -km Nick88H
+
       - name: Build firmware
         working-directory: qmk_firmware
         run: |
