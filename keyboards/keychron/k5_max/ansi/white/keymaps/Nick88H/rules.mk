@@ -1,7 +1,8 @@
 CONSOLE_ENABLE = yes
 NKRO_ENABLE = no
 FORCE_NKRO = no
-NO_ACTION_KEYBOARD = yes  # belt and suspenders
+NO_ACTION_KEYBOARD = yes
+NO_USB_NKRO = yes
 
 MOUSEKEY_ENABLE = no
 EXTRAKEY_ENABLE = no
