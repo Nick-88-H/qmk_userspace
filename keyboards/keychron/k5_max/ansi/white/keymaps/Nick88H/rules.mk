@@ -1,3 +1,9 @@
 CONSOLE_ENABLE = yes
+
+# HARD OFF for conflicting features:
 NKRO_ENABLE = no
 MOUSEKEY_ENABLE = no
+EXTRAKEY_ENABLE = no
+MIDI_ENABLE = no
+SERIAL_ENABLE = no
+STENO_ENABLE = no
