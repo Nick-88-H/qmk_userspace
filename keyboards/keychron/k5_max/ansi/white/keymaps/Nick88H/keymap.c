@@ -26,6 +26,7 @@ enum layers {
     WIN_FN,
     WIN_HALF_QWERTY,
 };
+
 // ─────────────────────────── Keymaps ───────────────────────────
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [MAC_BASE] = LAYOUT_108_ansi(
@@ -69,6 +70,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______, _______,  _______,  _______, _______,          _______, _______),
 
 };
+
 // ─────────────── Sticky Modifier Handling ───────────────
 #define MODIFIER_TIMEOUT    5000
 #define IS_OSM_SHIFT(kc) ((kc) == OSM(MOD_RSFT) || (kc) == OSM(MOD_LSFT))
@@ -78,6 +80,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      (kc) == KC_RALT || (kc) == KC_LALT || \
      (kc) == KC_RSFT || (kc) == KC_LSFT || \
      (kc) == KC_CAPS || (kc) == KC_INS || \
+     (kc) == KC_F14  || (kc) == KC_F15 || \
      IS_OSM_SHIFT(kc))
 
 static uint16_t last_ctrl_tap = 0;
@@ -95,6 +98,11 @@ static bool shift_was_active = false;
 static bool caps_was_active = false;
 static bool insert_was_active = false;
 
+static uint16_t caps_press_timer = 0;   // 0 = not pressed
+static bool     caps_hold_active  = false;  // true while physical key is held *after* TAPPING_TERM
+static uint16_t insert_press_timer = 0;
+static bool     insert_hold_active = false;
+
 static void clear_all_modifiers(void) {
     unregister_mods(MOD_BIT(KC_RCTL) | MOD_BIT(KC_RALT) | MOD_BIT(KC_RSFT));
     clear_oneshot_mods();
@@ -110,6 +118,7 @@ static void clear_all_modifiers(void) {
     insert_was_active = false;
 
     uprintf(">> TIMEOUT\n");
+    tap_code(KC_F14);
 }
 
 void matrix_scan_user(void) {
@@ -117,18 +126,51 @@ void matrix_scan_user(void) {
 
     if (osm_mods & (MOD_BIT(KC_RSFT) | MOD_BIT(KC_LSFT))) {
         if (!shift_was_active) {
-            shift_was_active = true;
+            /* 1 ─ take Shift out of the HID report for a moment */
+            uint8_t saved = get_oneshot_mods();
+            clear_oneshot_mods();
+
+            /* 2 ─ tell AHK “Shift has begun” */
+            tap_code(KC_F15);          // press + release F15
+
+            /* 3 ─ put the one-shot Shift back so the next key is shifted */
+            add_oneshot_mods(saved);
+
+            shift_was_active  = true;
             last_mod_activity = timer_read();
             uprintf(">> Shift ACTIVATED\n");
         }
     } else if (shift_was_active) {
         shift_was_active = false;
         uprintf(">> Shift RELEASED\n");
+        tap_code(KC_F14);
     }
 
     if ((sticky_ctrl_active || sticky_alt_active || shift_was_active || caps_was_active || insert_was_active) &&
         timer_elapsed(last_mod_activity) > MODIFIER_TIMEOUT) {
         clear_all_modifiers();
+    }
+
+    /* Promote Caps tap→hold once it’s been down for longer than TAPPING_TERM */
+    if (caps_press_timer && !caps_hold_active &&
+        timer_elapsed(caps_press_timer) >= TAPPING_TERM) {
+
+        register_code(KC_CAPS);              // press Caps for real
+        caps_hold_active  = true;
+        caps_was_active   = false;           // not sticky, it’s a real hold
+        last_mod_activity = timer_read();
+        uprintf(">> Caps HOLD ACTIVATED\n");
+    }
+
+    /* Promote Insert tap→hold once TAPPING_TERM is reached */
+    if (insert_press_timer && !insert_hold_active &&
+        timer_elapsed(insert_press_timer) >= TAPPING_TERM) {
+
+        register_code(KC_INS);
+        insert_hold_active  = true;
+        insert_was_active   = false;    // not sticky, it's real hold
+        last_mod_activity   = timer_read();
+        uprintf(">> Insert HOLD ACTIVATED\n");
     }
 }
 
@@ -143,26 +185,60 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         last_mod_activity = now;
     }
 
-    // Sticky CAPS
+    /* ───────── CAPS TAP-vs-HOLD ───────── */
     if (keycode == KC_CAPS) {
         if (record->event.pressed) {
-            register_code(KC_CAPS);
-            caps_was_active = true;
-            last_mod_activity = now;
-            uprintf(">> Caps ACTIVATED\n");
+            /* key DOWN – start timer, decide later */
+            caps_press_timer = now;
+            return false;                    // swallow event for now
+        } else {
+            /* key UP – figure out what happened */
+            uint16_t elapsed = timer_elapsed(caps_press_timer);
+            caps_press_timer = 0;
+
+            if (caps_hold_active) {
+                /* was in real hold → release it */
+                unregister_code(KC_CAPS);
+                caps_hold_active = false;
+                uprintf(">> Caps HOLD RELEASED\n");
+                return false;
+            }
+
+            /* it was a tap → sticky one-shot */
+            if (elapsed < TAPPING_TERM) {
+                register_code(KC_CAPS);      // press and keep it down logically
+                caps_was_active   = true;
+                last_mod_activity = now;
+                uprintf(">> Caps ACTIVATED\n");
+            }
+            return false;
         }
-        return false;
     }
 
-    // Sticky INSERT
+    /* ───────── INSERT TAP-vs-HOLD ───────── */
     if (keycode == KC_INS) {
         if (record->event.pressed) {
-            register_code(KC_INS);
-            insert_was_active = true;
-            last_mod_activity = now;
-            uprintf(">> Insert ACTIVATED\n");
+            insert_press_timer = now;
+            return false;
+        } else {
+            uint16_t elapsed = timer_elapsed(insert_press_timer);
+            insert_press_timer = 0;
+
+            if (insert_hold_active) {
+                unregister_code(KC_INS);
+                insert_hold_active = false;
+                uprintf(">> Insert HOLD RELEASED\n");
+                return false;
+            }
+
+            if (elapsed < TAPPING_TERM) {
+                register_code(KC_INS);
+                insert_was_active = true;
+                last_mod_activity = now;
+                uprintf(">> Insert ACTIVATED\n");
+            }
+            return false;
         }
-        return false;
     }
 
     // Sticky Ctrl
@@ -213,6 +289,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (sticky_ctrl_active) ctrl_waiting_for_release = true;
         if (sticky_alt_active) alt_waiting_for_release = true;
     }
+
     // Release all sticky mods (incl. SHIFT, CTRL, ALT, CAPS and INSERT) on next key release
     if (!record->event.pressed &&
         !IS_REAL_MOD(keycode) &&

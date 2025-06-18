@@ -44,4 +44,4 @@ jobs:
           files: |
             qmk_firmware/.build/keychron_k5_max_ansi_white_Nick88H.bin
             qmk_firmware/.build/keychron_k17_pro_ansi_encoder_white_Nick88H.bin
-            hid_listen.py
+            sticky_sounds.ahk
