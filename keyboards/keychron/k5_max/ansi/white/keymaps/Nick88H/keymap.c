@@ -61,7 +61,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______, _______,  _______,  _______, _______,          _______, _______),
 
     [WIN_HALF_QWERTY] = LAYOUT_108_ansi(
-        _______,            _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______, _______,  _______,  _______, _______, _______, _______, _______,
+        QK_BOOT,            _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______, _______,  _______,  _______, _______, _______, _______, _______,
         _______,  _______,  _______,  _______,  _______,  _______,  KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     _______,  _______,  _______, _______,  _______,  _______, _______, _______, _______, _______,
         _______,  _______,  _______,  _______,  _______,  _______,  KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     _______,  _______,  _______, _______,  _______,  _______, _______, _______, _______,
         _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,               _______,                              _______, _______, _______, _______,
@@ -119,6 +119,8 @@ static void clear_all_modifiers(void) {
 }
 
 void matrix_scan_user(void) {
+    if (get_highest_layer(default_layer_state) != WIN_BASE) return;
+
     uint8_t osm_mods = get_oneshot_mods();
 
     if (osm_mods & (MOD_BIT(KC_RSFT) | MOD_BIT(KC_LSFT))) {
@@ -168,6 +170,8 @@ void matrix_scan_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (get_highest_layer(default_layer_state) != WIN_BASE) return true;
+
     uint16_t now = timer_read();
 
     if (!process_record_keychron_common(keycode, record)) {

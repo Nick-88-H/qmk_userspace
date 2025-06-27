@@ -129,6 +129,8 @@ static void clear_all_modifiers(void) {
 }
 
 void matrix_scan_user(void) {
+    if (get_highest_layer(default_layer_state) != WIN_BASE) return;
+
     uint8_t osm_mods = get_oneshot_mods();
 
     if (osm_mods & (MOD_BIT(KC_RSFT) | MOD_BIT(KC_LSFT))) {
@@ -178,6 +180,8 @@ void matrix_scan_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (get_highest_layer(default_layer_state) != WIN_BASE) return true;
+
     uint16_t now = timer_read();
 
     if (!process_record_keychron_common(keycode, record)) {
