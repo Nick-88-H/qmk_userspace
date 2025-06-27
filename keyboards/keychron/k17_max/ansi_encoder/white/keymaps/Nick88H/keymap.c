@@ -1,4 +1,4 @@
-/* Copyright 2023 @ Keychron (https://www.keychron.com)
+/* Copyright 2024 ~ 2025 @ Keychron (https://www.keychron.com)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  */
 
 #include QMK_KEYBOARD_H
-//#include "keychron_common.h"
+#include "keychron_common.h"
 #include "print.h"
 #include "action_tapping.h"
 
@@ -68,18 +68,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  _______,  _______,  _______,  _______,  _______,  KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     _______,    _______,  _______,            _______,  _______,  _______,  _______, _______,
         _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,                 _______,            KC_INS,   _______,  _______,  _______,
         _______,            _______,  _______,  _______,  _______,  _______,  _______,  KC_Z,     KC_X,     KC_C,     KC_V,                 _______,  _______,            _______,  _______,  _______, _______,
-        _______,  _______,  _______,                                _______,                                _______,  _______,    _______,  _______,  _______,  _______,  _______,            _______
-    ),
+        _______,  _______,  _______,                                _______,                                _______,  _______,    _______,  _______,  _______,  _______,  _______,            _______        ),
 };
 
-
-// ─────────────────────── Encoder Map ───────────────────────
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
     [MAC_BASE] = {ENCODER_CCW_CW(KC_VOLD, KC_VOLU)},
-    [MAC_FN] = {ENCODER_CCW_CW(BL_DOWN, BL_UP)},
+    [MAC_FN]   = {ENCODER_CCW_CW(BL_DOWN, BL_UP)},
     [WIN_BASE] = {ENCODER_CCW_CW(KC_VOLD, KC_VOLU)},
-    [WIN_FN] = {ENCODER_CCW_CW(BL_DOWN, BL_UP)},
+    [WIN_FN]   = {ENCODER_CCW_CW(BL_DOWN, BL_UP)},
     [WIN_HALF_QWERTY] = {ENCODER_CCW_CW(KC_VOLD, KC_VOLU)},
 };
 #endif
@@ -190,9 +187,9 @@ void matrix_scan_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     uint16_t now = timer_read();
 
-//    if (!process_record_keychron_common(keycode, record)) {
-//        return false;
-//    }
+    if (!process_record_keychron_common(keycode, record)) {
+        return false;
+    }
 
     if (IS_REAL_MOD(keycode)) {
         last_mod_activity = now;
@@ -293,6 +290,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return false;
     }
+
 
     // Track whether to release sticky mods after non-mod key
     if (record->event.pressed &&
