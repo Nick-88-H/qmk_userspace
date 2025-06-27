@@ -131,14 +131,6 @@ static void clear_all_modifiers(void) {
     tap_code(KC_F14);
 }
 
-void keyboard_post_init_user(void) {
-  // Customise these values to desired behaviour
-  debug_enable=true;
-  debug_matrix=true;
-  //debug_keyboard=true;
-  //debug_mouse=true;
-}
-
 void matrix_scan_user(void) {
     uint8_t osm_mods = get_oneshot_mods();
 
