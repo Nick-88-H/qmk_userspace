@@ -16,7 +16,6 @@
 
 #include QMK_KEYBOARD_H
 #include "keychron_common.h"
-#include "print.h"
 #include "action_tapping.h"
 
 enum layers {
@@ -116,8 +115,6 @@ static void clear_all_modifiers(void) {
     shift_was_active = false;
     caps_was_active = false;
     insert_was_active = false;
-
-    uprintf(">> TIMEOUT\n");
     tap_code(KC_F14);
 }
 
@@ -138,11 +135,9 @@ void matrix_scan_user(void) {
 
             shift_was_active  = true;
             last_mod_activity = timer_read();
-            uprintf(">> Shift ACTIVATED\n");
         }
     } else if (shift_was_active) {
         shift_was_active = false;
-        uprintf(">> Shift RELEASED\n");
         tap_code(KC_F14);
     }
 
@@ -159,7 +154,6 @@ void matrix_scan_user(void) {
         caps_hold_active  = true;
         caps_was_active   = false;           // not sticky, it’s a real hold
         last_mod_activity = timer_read();
-        uprintf(">> Caps HOLD ACTIVATED\n");
     }
 
     /* Promote Insert tap→hold once TAPPING_TERM is reached */
@@ -170,7 +164,6 @@ void matrix_scan_user(void) {
         insert_hold_active  = true;
         insert_was_active   = false;    // not sticky, it's real hold
         last_mod_activity   = timer_read();
-        uprintf(">> Insert HOLD ACTIVATED\n");
     }
 }
 
@@ -200,7 +193,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 /* was in real hold → release it */
                 unregister_code(KC_CAPS);
                 caps_hold_active = false;
-                uprintf(">> Caps HOLD RELEASED\n");
                 return false;
             }
 
@@ -209,7 +201,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 register_code(KC_CAPS);      // press and keep it down logically
                 caps_was_active   = true;
                 last_mod_activity = now;
-                uprintf(">> Caps ACTIVATED\n");
             }
             return false;
         }
@@ -227,7 +218,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (insert_hold_active) {
                 unregister_code(KC_INS);
                 insert_hold_active = false;
-                uprintf(">> Insert HOLD RELEASED\n");
                 return false;
             }
 
@@ -235,7 +225,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 register_code(KC_INS);
                 insert_was_active = true;
                 last_mod_activity = now;
-                uprintf(">> Insert ACTIVATED\n");
             }
             return false;
         }
@@ -248,7 +237,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 // Double tap: sticky mode -> send a real down event
                 register_code(KC_RCTL);
                 sticky_ctrl_active = true;
-                uprintf(">> Ctrl ACTIVATED\n");
             } else {
                 last_ctrl_tap = now;
                 register_code(KC_RCTL);  // normal hold
@@ -268,7 +256,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (timer_elapsed(last_alt_tap) < 500) {
                 register_code(KC_RALT);
                 sticky_alt_active = true;
-                uprintf(">> Alt ACTIVATED\n");
             } else {
                 last_alt_tap = now;
                 register_code(KC_RALT);  // normal hold
@@ -300,28 +287,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             unregister_mods(MOD_BIT(KC_RCTL));
             sticky_ctrl_active = false;
             ctrl_waiting_for_release = false;
-            uprintf(">> Ctrl RELEASED\n");
         }
 
         if (alt_waiting_for_release) {
             unregister_mods(MOD_BIT(KC_RALT));
             sticky_alt_active = false;
             alt_waiting_for_release = false;
-            uprintf(">> Alt RELEASED\n");
         }
 
         if (caps_was_active) {
             unregister_code(KC_CAPS);
             caps_was_active = false;
-            uprintf(">> Caps RELEASED\n");
         }
 
         if (insert_was_active) {
             unregister_code(KC_INS);
             insert_was_active = false;
-            uprintf(">> Insert RELEASED\n");
         }
     }
-
     return true;
 }
