@@ -115,7 +115,7 @@ static void clear_all_modifiers(void) {
     shift_was_active = false;
     caps_was_active = false;
     insert_was_active = false;
-    tap_code(KC_F14);
+    // tap_code(KC_F14);
 }
 
 void matrix_scan_user(void) {
@@ -130,7 +130,7 @@ void matrix_scan_user(void) {
             clear_oneshot_mods();
 
             /* 2 ─ tell AHK “Shift has begun” */
-            tap_code(KC_F15);          // press + release F15
+            // tap_code(KC_F15);          // press + release F15
 
             /* 3 ─ put the one-shot Shift back so the next key is shifted */
             add_oneshot_mods(saved);
@@ -140,7 +140,7 @@ void matrix_scan_user(void) {
         }
     } else if (shift_was_active) {
         shift_was_active = false;
-        tap_code(KC_F14);
+        // tap_code(KC_F14);
     }
 
     if ((sticky_ctrl_active || sticky_alt_active || shift_was_active || caps_was_active || insert_was_active) &&
@@ -150,7 +150,7 @@ void matrix_scan_user(void) {
 
     /* Promote Caps tap→hold once it’s been down for longer than TAPPING_TERM */
     if (caps_press_timer && !caps_hold_active &&
-        timer_elapsed(caps_press_timer) >= TAPPING_TERM) {
+        timer_elapsed(caps_press_timer) >= 500) {
 
         register_code(KC_CAPS);              // press Caps for real
         caps_hold_active  = true;
@@ -160,7 +160,7 @@ void matrix_scan_user(void) {
 
     /* Promote Insert tap→hold once TAPPING_TERM is reached */
     if (insert_press_timer && !insert_hold_active &&
-        timer_elapsed(insert_press_timer) >= TAPPING_TERM) {
+        timer_elapsed(insert_press_timer) >= 500) {
 
         register_code(KC_INS);
         insert_hold_active  = true;
@@ -201,7 +201,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
 
             /* it was a tap → sticky one-shot */
-            if (elapsed < TAPPING_TERM) {
+            if (elapsed < 500) {
                 register_code(KC_CAPS);      // press and keep it down logically
                 caps_was_active   = true;
                 last_mod_activity = now;
@@ -225,7 +225,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
 
-            if (elapsed < TAPPING_TERM) {
+            if (elapsed < 500) {
                 register_code(KC_INS);
                 insert_was_active = true;
                 last_mod_activity = now;
