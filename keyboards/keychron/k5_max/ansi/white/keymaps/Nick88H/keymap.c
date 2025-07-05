@@ -28,6 +28,7 @@ enum layers {
 
 // ─────────────────────────── Keymaps ───────────────────────────
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+
     [MAC_BASE] = LAYOUT_108_ansi(
         KC_ESC,             KC_BRID,  KC_BRIU,  KC_MCTRL, KC_LNPAD, BL_DOWN,  BL_UP,    KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU, KC_SNAP,  KC_SIRI,  BL_STEP, KC_F13,  KC_F14,  KC_F15,  KC_F16,
         KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,  KC_EQL,   KC_BSPC, KC_INS,   KC_HOME,  KC_PGUP, KC_NUM,  KC_PSLS, KC_PAST, KC_PMNS,
@@ -48,13 +49,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_ESC,             KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,  KC_PSCR,  KC_CTANA, BL_STEP, _______, _______, _______, LGUI(KC_H),
         KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,  KC_EQL,   KC_BSPC, KC_INS,   KC_HOME,  KC_PGUP, KC_NUM,  KC_PSLS, KC_PAST, KC_PMNS,
         KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,  KC_RBRC,  KC_BSLS, KC_DEL,   KC_END,   KC_PGDN, KC_P7,   KC_P8,   KC_P9,
-        KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,            KC_ENT,                               KC_P4,   KC_P5,   KC_P6,   KC_PPLS,
+        KC_INS,   KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,            KC_ENT,                               KC_P4,   KC_P5,   KC_P6,   KC_PPLS,
         OSM(MOD_LSFT),      KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,            OSM(MOD_RSFT),               KC_UP,            KC_P1,   KC_P2,   KC_P3,
         KC_LCTL,  KC_LWIN,  KC_LALT,                                LT(WIN_HALF_QWERTY, KC_SPC),            KC_RALT,  KC_RWIN, MO(WIN_FN),KC_RCTL, KC_LEFT,  KC_DOWN,  KC_RGHT, KC_P0,            KC_PDOT, KC_PENT),
 
     [WIN_FN] = LAYOUT_108_ansi(
         _______,            KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,   BL_DOWN,  BL_UP,   KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU, _______,  _______,  BL_TOGG, _______, _______, _______, _______,
-        _______,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______, _______,  _______,  _______, _______, _______, _______, _______,
+        _______,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______, _______,  _______,  _______, KC_CAPS, _______, _______, _______,
         BL_TOGG,  BL_STEP,  BL_UP,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______, _______,  _______,  _______, _______, _______, _______,
         _______,  _______,  BL_DOWN,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,                              _______, _______, _______, _______,
         _______,            _______,  _______,  _______,  _______,  BAT_LVL,  NK_TOGG,  _______,  _______,  _______,  _______,            _______,           _______,           _______, _______, _______,
@@ -79,7 +80,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      (kc) == KC_RALT || (kc) == KC_LALT || \
      (kc) == KC_RSFT || (kc) == KC_LSFT || \
      (kc) == KC_CAPS || (kc) == KC_INS || \
-     (kc) == KC_F14  || (kc) == KC_F15 || \
      IS_OSM_SHIFT(kc))
 
 static uint16_t last_ctrl_tap = 0;
@@ -94,28 +94,21 @@ static uint16_t last_mod_activity = 0;
 
 // ─────────────── One-shot Modifier Tracking ───────────────
 static bool shift_was_active = false;
-static bool caps_was_active = false;
 static bool insert_was_active = false;
 
-static uint16_t caps_press_timer = 0;   // 0 = not pressed
-static bool     caps_hold_active  = false;  // true while physical key is held *after* TAPPING_TERM
 static uint16_t insert_press_timer = 0;
 static bool     insert_hold_active = false;
 
 static void clear_all_modifiers(void) {
     unregister_mods(MOD_BIT(KC_RCTL) | MOD_BIT(KC_RALT) | MOD_BIT(KC_RSFT));
     clear_oneshot_mods();
-    unregister_code(KC_CAPS);
     unregister_code(KC_INS);
-
     sticky_ctrl_active = false;
     sticky_alt_active = false;
     ctrl_waiting_for_release = false;
     alt_waiting_for_release = false;
     shift_was_active = false;
-    caps_was_active = false;
     insert_was_active = false;
-    // tap_code(KC_F14);
 }
 
 void matrix_scan_user(void) {
@@ -125,43 +118,21 @@ void matrix_scan_user(void) {
 
     if (osm_mods & (MOD_BIT(KC_RSFT) | MOD_BIT(KC_LSFT))) {
         if (!shift_was_active) {
-            /* 1 ─ take Shift out of the HID report for a moment */
-            uint8_t saved = get_oneshot_mods();
-            clear_oneshot_mods();
-
-            /* 2 ─ tell AHK “Shift has begun” */
-            // tap_code(KC_F15);          // press + release F15
-
-            /* 3 ─ put the one-shot Shift back so the next key is shifted */
-            add_oneshot_mods(saved);
-
             shift_was_active  = true;
             last_mod_activity = timer_read();
         }
     } else if (shift_was_active) {
         shift_was_active = false;
-        // tap_code(KC_F14);
     }
 
-    if ((sticky_ctrl_active || sticky_alt_active || shift_was_active || caps_was_active || insert_was_active) &&
+    if ((sticky_ctrl_active || sticky_alt_active || shift_was_active || insert_was_active) &&
         timer_elapsed(last_mod_activity) > MODIFIER_TIMEOUT) {
         clear_all_modifiers();
-    }
-
-    /* Promote Caps tap→hold once it’s been down for longer than TAPPING_TERM */
-    if (caps_press_timer && !caps_hold_active &&
-        timer_elapsed(caps_press_timer) >= 500) {
-
-        register_code(KC_CAPS);              // press Caps for real
-        caps_hold_active  = true;
-        caps_was_active   = false;           // not sticky, it’s a real hold
-        last_mod_activity = timer_read();
     }
 
     /* Promote Insert tap→hold once TAPPING_TERM is reached */
     if (insert_press_timer && !insert_hold_active &&
         timer_elapsed(insert_press_timer) >= 500) {
-
         register_code(KC_INS);
         insert_hold_active  = true;
         insert_was_active   = false;    // not sticky, it's real hold
@@ -180,34 +151,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     if (IS_REAL_MOD(keycode)) {
         last_mod_activity = now;
-    }
-
-    /* ───────── CAPS TAP-vs-HOLD ───────── */
-    if (keycode == KC_CAPS) {
-        if (record->event.pressed) {
-            /* key DOWN – start timer, decide later */
-            caps_press_timer = now;
-            return false;                    // swallow event for now
-        } else {
-            /* key UP – figure out what happened */
-            uint16_t elapsed = timer_elapsed(caps_press_timer);
-            caps_press_timer = 0;
-
-            if (caps_hold_active) {
-                /* was in real hold → release it */
-                unregister_code(KC_CAPS);
-                caps_hold_active = false;
-                return false;
-            }
-
-            /* it was a tap → sticky one-shot */
-            if (elapsed < 500) {
-                register_code(KC_CAPS);      // press and keep it down logically
-                caps_was_active   = true;
-                last_mod_activity = now;
-            }
-            return false;
-        }
     }
 
     /* ───────── INSERT TAP-vs-HOLD ───────── */
@@ -272,7 +215,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
 
-
     // Track whether to release sticky mods after non-mod key
     if (record->event.pressed &&
         !IS_REAL_MOD(keycode) &&
@@ -281,7 +223,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (sticky_alt_active) alt_waiting_for_release = true;
     }
 
-    // Release all sticky mods (incl. SHIFT, CTRL, ALT, CAPS and INSERT) on next key release
+    // Release all sticky mods (incl. SHIFT, CTRL, ALT and INSERT) on next key release
     if (!record->event.pressed &&
         !IS_REAL_MOD(keycode) &&
         keycode != OSM(MOD_RSFT) && keycode != OSM(MOD_LSFT) &&
@@ -297,11 +239,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             unregister_mods(MOD_BIT(KC_RALT));
             sticky_alt_active = false;
             alt_waiting_for_release = false;
-        }
-
-        if (caps_was_active) {
-            unregister_code(KC_CAPS);
-            caps_was_active = false;
         }
 
         if (insert_was_active) {
