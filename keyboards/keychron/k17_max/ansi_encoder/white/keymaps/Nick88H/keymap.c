@@ -1,18 +1,3 @@
-/* Copyright 2024 ~ 2025 @ Keychron (https://www.keychron.com)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 /* Copyright 2023 @ Keychron (https://www.keychron.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -82,7 +67,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         QK_BOOT,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,  _______,  _______,  _______,  _______,  _______, _______,
         _______,  _______,  _______,  _______,  _______,  _______,  KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     _______,    _______,  _______,            _______,  _______,  _______,  _______, _______,
         _______,  _______,  _______,  _______,  _______,  _______,  KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     _______,    _______,  _______,            _______,  _______,  _______,  _______, _______,
-        _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,                 _______,            KC_INS,   _______,  _______,  _______,
+        KC_INS,   _______,  _______,  _______,  _______,  _______,  _______,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,                 _______,            KC_INS,   _______,  _______,  _______,
         _______,            _______,  _______,  _______,  _______,  _______,  _______,  KC_Z,     KC_X,     KC_C,     KC_V,                 _______,  _______,            _______,  _______,  _______, _______,
         _______,  _______,  _______,                                _______,                                _______,  _______,    _______,  _______,  _______,  _______,  _______,            _______        ),
 };
@@ -106,6 +91,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
      (kc) == KC_RALT || (kc) == KC_LALT || \
      (kc) == KC_RSFT || (kc) == KC_LSFT || \
      (kc) == KC_CAPS || (kc) == KC_INS || \
+     (kc) == KC_SPC || \
      IS_OSM_SHIFT(kc))
 
 static uint16_t last_ctrl_tap = 0;
@@ -121,6 +107,7 @@ static uint16_t last_mod_activity = 0;
 // ─────────────── One-shot Modifier Tracking ───────────────
 static bool shift_was_active = false;
 static bool insert_was_active = false;
+static bool insert_waiting_for_release = false;
 
 static uint16_t insert_press_timer = 0;
 static bool     insert_hold_active = false;
@@ -252,6 +239,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         keycode != OSM(MOD_RSFT) && keycode != OSM(MOD_LSFT)) {
         if (sticky_ctrl_active) ctrl_waiting_for_release = true;
         if (sticky_alt_active) alt_waiting_for_release = true;
+        if (insert_was_active) insert_waiting_for_release = true;
     }
 
     // Release all sticky mods (incl. SHIFT, CTRL, ALT, CAPS and INSERT) on next key release
@@ -272,10 +260,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             alt_waiting_for_release = false;
         }
 
-        if (insert_was_active) {
+        if (insert_waiting_for_release) {
             unregister_code(KC_INS);
             insert_was_active = false;
-//            uprintf(">> Insert RELEASED\n");
+            insert_waiting_for_release = false;
         }
     }
     return true;

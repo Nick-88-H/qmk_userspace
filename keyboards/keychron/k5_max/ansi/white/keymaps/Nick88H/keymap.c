@@ -80,6 +80,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      (kc) == KC_RALT || (kc) == KC_LALT || \
      (kc) == KC_RSFT || (kc) == KC_LSFT || \
      (kc) == KC_CAPS || (kc) == KC_INS || \
+     (kc) == KC_SPC || \
      IS_OSM_SHIFT(kc))
 
 static uint16_t last_ctrl_tap = 0;
@@ -95,6 +96,7 @@ static uint16_t last_mod_activity = 0;
 // ─────────────── One-shot Modifier Tracking ───────────────
 static bool shift_was_active = false;
 static bool insert_was_active = false;
+static bool insert_waiting_for_release = false;
 
 static uint16_t insert_press_timer = 0;
 static bool     insert_hold_active = false;
@@ -221,6 +223,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         keycode != OSM(MOD_RSFT) && keycode != OSM(MOD_LSFT)) {
         if (sticky_ctrl_active) ctrl_waiting_for_release = true;
         if (sticky_alt_active) alt_waiting_for_release = true;
+        if (insert_was_active) insert_waiting_for_release = true;
     }
 
     // Release all sticky mods (incl. SHIFT, CTRL, ALT and INSERT) on next key release
@@ -241,9 +244,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             alt_waiting_for_release = false;
         }
 
-        if (insert_was_active) {
+        if (insert_waiting_for_release) {
             unregister_code(KC_INS);
             insert_was_active = false;
+            insert_waiting_for_release = false;
         }
     }
     return true;
