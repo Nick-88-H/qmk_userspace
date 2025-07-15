@@ -233,14 +233,32 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
 
-    // Track whether to release sticky mods after non-mod key
+    // Inside process_record_user, where non-mod keys are handled:
     if (record->event.pressed &&
         !IS_REAL_MOD(keycode) &&
         keycode != OSM(MOD_RSFT) && keycode != OSM(MOD_LSFT)) {
+
+        // New logic to promote Insert to held if another key was pressed within 500ms
+        if (insert_press_timer && !insert_hold_active) {
+            register_code(KC_INS);
+            insert_hold_active = true;
+            insert_press_timer = 0;
+            last_mod_activity = now;
+        }
+
         if (sticky_ctrl_active) ctrl_waiting_for_release = true;
         if (sticky_alt_active) alt_waiting_for_release = true;
         if (insert_was_active) insert_waiting_for_release = true;
     }
+
+//    // Track whether to release sticky mods after non-mod key
+//    if (record->event.pressed &&
+//        !IS_REAL_MOD(keycode) &&
+//        keycode != OSM(MOD_RSFT) && keycode != OSM(MOD_LSFT)) {
+//        if (sticky_ctrl_active) ctrl_waiting_for_release = true;
+//        if (sticky_alt_active) alt_waiting_for_release = true;
+//        if (insert_was_active) insert_waiting_for_release = true;
+//    }
 
     // Release all sticky mods (incl. SHIFT, CTRL, ALT, CAPS and INSERT) on next key release
     if (!record->event.pressed &&
