@@ -17,8 +17,7 @@
 #include QMK_KEYBOARD_H
 #include "keychron_common.h"
 #include "action_tapping.h"
-
-//#include "print.h"
+#include "print.h"
 
 enum layers {
     MAC_BASE,
@@ -122,7 +121,7 @@ static void clear_all_modifiers(void) {
     alt_waiting_for_release = false;
     shift_was_active = false;
     insert_was_active = false;
-//    uprintf("Timeout\n");
+    uprintf("Timeout\n");
 }
 
 void matrix_scan_user(void) {
@@ -134,11 +133,11 @@ void matrix_scan_user(void) {
         if (!shift_was_active) {
             shift_was_active  = true;
             last_mod_activity = timer_read();
-//            uprintf(">> Shift STICKY\n");
+            uprintf("Shift STICKY\n");
         }
     } else if (shift_was_active) {
         shift_was_active = false;
-//        uprintf(">> Shift RELEASED\n");
+        uprintf("Shift RELEASED\n");
     }
 
     if ((sticky_ctrl_active || sticky_alt_active || shift_was_active || insert_was_active) &&
@@ -149,7 +148,6 @@ void matrix_scan_user(void) {
     /* Promote Insert tap→hold once TAPPING_TERM is reached */
     if (insert_press_timer && !insert_hold_active &&
         timer_elapsed(insert_press_timer) >= 500) {
-//        uprintf(">> Insert HELD\n");
         register_code(KC_INS);
         insert_hold_active  = true;
         insert_was_active   = false;    // not sticky, it's real hold
@@ -186,10 +184,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
 
             if (elapsed < 500) {
-//                uprintf(">> Insert STICKY\n");
                 register_code(KC_INS);
                 insert_was_active = true;
                 last_mod_activity = now;
+                uprintf("Insert STICKY\n");
             }
             return false;
         }
@@ -202,6 +200,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 // Double tap: sticky mode -> send a real down event
                 register_code(KC_RCTL);
                 sticky_ctrl_active = true;
+                uprintf("Ctrl STICKY\n");
             } else {
                 last_ctrl_tap = now;
                 register_code(KC_RCTL);  // normal hold
@@ -221,9 +220,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (timer_elapsed(last_alt_tap) < 500) {
                 register_code(KC_RALT);
                 sticky_alt_active = true;
+                uprintf("Alt STICKY\n");
             } else {
                 last_alt_tap = now;
-                register_code(KC_RALT);  // normal hold
+                register_code(KC_RALT);  // normal tap or hold
             }
         } else {
             if (!sticky_alt_active) {
@@ -243,7 +243,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             register_code(KC_INS);
             insert_hold_active = true;
             insert_press_timer = 0;
-            last_mod_activity = now;
         }
 
         if (sticky_ctrl_active) ctrl_waiting_for_release = true;
@@ -251,20 +250,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (insert_was_active) insert_waiting_for_release = true;
     }
 
-//    // Track whether to release sticky mods after non-mod key
-//    if (record->event.pressed &&
-//        !IS_REAL_MOD(keycode) &&
-//        keycode != OSM(MOD_RSFT) && keycode != OSM(MOD_LSFT)) {
-//        if (sticky_ctrl_active) ctrl_waiting_for_release = true;
-//        if (sticky_alt_active) alt_waiting_for_release = true;
-//        if (insert_was_active) insert_waiting_for_release = true;
-//    }
-
     // Release all sticky mods (incl. SHIFT, CTRL, ALT, CAPS and INSERT) on next key release
     if (!record->event.pressed &&
         !IS_REAL_MOD(keycode) &&
         keycode != OSM(MOD_RSFT) && keycode != OSM(MOD_LSFT) &&
         !shift_was_active) {
+
+        if (ctrl_waiting_for_release || alt_waiting_for_release || insert_waiting_for_release) {
+            uprintf("Mods RELEASED\n");
+        }
 
         if (ctrl_waiting_for_release) {
             unregister_mods(MOD_BIT(KC_RCTL));
