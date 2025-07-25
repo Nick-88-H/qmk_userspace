@@ -26,12 +26,13 @@ jobs:
       - name: Debug info.json (check if raw=false)
         working-directory: qmk_firmware
         run: |
-          cat keyboards/keychron/k17_max/info.json
+          cat keyboards/keychron/k5_max/info.json
 
       - name: Build firmware
         working-directory: qmk_firmware
         run: |
           qmk compile -kb keychron/k17_max/ansi_encoder/white -km Nick88H
+          qmk compile -kb keychron/k5_max/ansi/white -km Nick88H
 
       - name: Upload .bin to GitHub Release (force overwrite latest)
         uses: softprops/action-gh-release@v2
