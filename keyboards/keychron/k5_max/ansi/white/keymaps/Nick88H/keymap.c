@@ -168,7 +168,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         register_code(KC_LGUI);
         tap_code(KC_R);
         unregister_code(KC_LGUI);
-        wait_ms(50); // Give Run dialog time to appear
+        wait_ms(100); // Give Run dialog time to appear
         SEND_STRING("cmd /k cd /d \"%USERPROFILE%\\Scripts\" && python sticky_sounds.py\n");
         return false;
     }
@@ -177,7 +177,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         register_code(KC_LGUI);
         tap_code(KC_R);
         unregister_code(KC_LGUI);
-        wait_ms(50); // Give Run dialog time to appear
+        wait_ms(100); // Give Run dialog time to appear
         SEND_STRING("cmd /k cd /d \"%USERPROFILE%\\Scripts\" && python sticky_sounds.py --kill\n");
         return false;
     }
