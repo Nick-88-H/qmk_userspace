@@ -34,15 +34,31 @@ jobs:
           qmk compile -kb keychron/k5_max/ansi/white -km Nick88H
           qmk compile -kb keychron/k17_max/ansi_encoder/white -km Nick88H
 
+      - name: Add timestamp to firmware filenames
+        id: stamp
+        run: |
+          TS=$(date -u +"%Y%m%d-%H%M%SZ")
+          echo "ts=$TS" >> "$GITHUB_OUTPUT"
+
+          mv qmk_firmware/.build/keychron_k5_max_ansi_white_Nick88H.bin \
+             qmk_firmware/.build/keychron_k5_max_ansi_white_Nick88H_${TS}.bin
+
+          mv qmk_firmware/.build/keychron_k17_max_ansi_encoder_white_Nick88H.bin \
+             qmk_firmware/.build/keychron_k17_max_ansi_encoder_white_Nick88H_${TS}.bin
+
       - name: Upload .bin to GitHub Release (force overwrite latest)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: Latest Keychron Firmware
+          name: Latest Keychron Firmware (${{ steps.stamp.outputs.ts }})
           body: |
             This is always the most recent firmware built from the `main` branch.
-          files: |
-            qmk_firmware/.build/keychron_k5_max_ansi_white_Nick88H.bin
-            qmk_firmware/.build/keychron_k17_max_ansi_encoder_white_Nick88H.bin
 
-            sticky_sounds.ahk
+            Build timestamp (UTC): ${{ steps.stamp.outputs.ts }}
+
+            Files:
+            - keychron_k5_max_ansi_white_Nick88H_${{ steps.stamp.outputs.ts }}.bin
+            - keychron_k17_max_ansi_encoder_white_Nick88H_${{ steps.stamp.outputs.ts }}.bin
+          files: |
+            qmk_firmware/.build/keychron_k5_max_ansi_white_Nick88H_${{ steps.stamp.outputs.ts }}.bin
+            qmk_firmware/.build/keychron_k17_max_ansi_encoder_white_Nick88H_${{ steps.stamp.outputs.ts }}.bin
